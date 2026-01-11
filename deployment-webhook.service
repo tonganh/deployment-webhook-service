@@ -1,0 +1,19 @@
+[Unit]
+Description=Deployment Webhook Service
+After=network.target
+
+[Service]
+Type=simple
+User=deploy
+WorkingDirectory=/opt/deployment-webhook
+Environment="DEPLOY_WEBHOOK_SECRET=CHANGE_THIS_TO_YOUR_SECRET"
+Environment="PORT=9000"
+Environment="COMMAND_TIMEOUT=600"
+ExecStart=/usr/bin/python3 /opt/deployment-webhook/deployment-service.py
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
