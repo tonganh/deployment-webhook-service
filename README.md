@@ -4,17 +4,26 @@ A secure Python webhook service that receives deployment requests, validates tok
 
 ## Quick Start
 
-1. **Install Python 3.11+ and required dependencies:**
+1. **Install Python 3.11+ and create virtual environment:**
 ```bash
 python3 --version
+python3 -m venv .venv
+source .venv/bin/activate
 ```
 
-2. **Generate a secure token:**
+2. **Install dependencies (if any):**
+```bash
+pip install -r requirements.txt
+```
+
+**Note:** This project uses only Python standard library, so no additional packages are required. The requirements.txt is kept for future dependencies.
+
+3. **Generate a secure token:**
 ```bash
 openssl rand -hex 32
 ```
 
-3. **Set environment variables:**
+4. **Set environment variables:**
 ```bash
 export DEPLOY_WEBHOOK_SECRET="your-secret-token-here"
 export PORT=9000
@@ -23,15 +32,23 @@ export COMMAND_TIMEOUT=600
 
 **Note:** You can deploy multiple projects from different locations. Just include `cd` in your command to specify the directory.
 
-4. **Run the service:**
+5. **Run the service:**
 ```bash
+source .venv/bin/activate
 python3 deployment-service.py
 ```
 
 Or run as a background process:
 ```bash
+source .venv/bin/activate
 nohup python3 deployment-service.py > deployment.log 2>&1 &
 ```
+
+**Virtual Environment Benefits:**
+- Isolates dependencies from system Python
+- Prevents conflicts with other projects
+- Easy to recreate on different servers
+- Can be version controlled (exclude .venv in .gitignore)
 
 ## Configuration
 
@@ -102,17 +119,22 @@ After=network.target
 [Service]
 Type=simple
 User=your-user
-WorkingDirectory=/path/to/manual-cicd
+WorkingDirectory=/path/to/deploy-webhook
 Environment="DEPLOY_WEBHOOK_SECRET=your-secret-token"
 Environment="PORT=9000"
 Environment="COMMAND_TIMEOUT=600"
-ExecStart=/usr/bin/python3 /path/to/manual-cicd/deployment-service.py
+ExecStart=/path/to/deploy-webhook/.venv/bin/python3 /path/to/deploy-webhook/deployment-service.py
 Restart=always
 RestartSec=10
 
 [Install]
 WantedBy=multi-user.target
 ```
+
+**Important:** Make sure to:
+- Replace `/path/to/deploy-webhook` with your actual project directory
+- Use the full path to the virtual environment's Python: `.venv/bin/python3`
+- Ensure the virtual environment is created before starting the service
 
 3. **Enable and start the service:**
 ```bash
@@ -209,6 +231,56 @@ GitHub Actions → Webhook POST (with command) → Python Service →
   ├─ Command validation (whitelist check)
   ├─ Execute command (with cd for directory changes)
   └─ Return success/failure status
+```
+
+## Virtual Environment Setup
+
+### Creating Virtual Environment
+
+```bash
+# Create virtual environment
+python3 -m venv .venv
+
+# Activate virtual environment (Linux/macOS)
+source .venv/bin/activate
+
+# Activate virtual environment (Windows)
+.venv\Scripts\activate
+```
+
+### Deactivating Virtual Environment
+
+```bash
+deactivate
+```
+
+### Recreating Virtual Environment
+
+If you need to recreate the environment on a new server:
+
+```bash
+# Remove old virtual environment
+rm -rf .venv
+
+# Create new virtual environment
+python3 -m venv .venv
+
+# Activate it
+source .venv/bin/activate
+
+# Install dependencies (if any are added in the future)
+pip install -r requirements.txt
+```
+
+### Using Virtual Environment in Scripts
+
+For automated deployments or scripts, always activate the venv first:
+
+```bash
+#!/bin/bash
+cd /path/to/deploy-webhook
+source .venv/bin/activate
+python3 deployment-service.py
 ```
 
 ## Logs
