@@ -11,24 +11,33 @@ python3 -m venv .venv
 source .venv/bin/activate
 ```
 
-2. **Install dependencies (if any):**
+2. **Install dependencies:**
 ```bash
 pip install -r requirements.txt
 ```
-
-**Note:** This project uses only Python standard library, so no additional packages are required. The requirements.txt is kept for future dependencies.
 
 3. **Generate a secure token:**
 ```bash
 openssl rand -hex 32
 ```
 
-4. **Set environment variables:**
+4. **Configure environment variables:**
 ```bash
-export DEPLOY_WEBHOOK_SECRET="your-secret-token-here"
-export PORT=9000
-export COMMAND_TIMEOUT=600
+# Copy the example file
+cp .env.example .env
+
+# Edit .env file with your values
+nano .env
 ```
+
+The `.env` file should contain:
+```bash
+DEPLOY_WEBHOOK_SECRET=your-generated-secret-token-here
+PORT=9000
+COMMAND_TIMEOUT=600
+```
+
+**Note:** The service will automatically load variables from `.env` file. You can also set them as environment variables if preferred.
 
 **Note:** You can deploy multiple projects from different locations. Just include `cd` in your command to specify the directory.
 
@@ -135,6 +144,8 @@ WantedBy=multi-user.target
 - Replace `/path/to/deploy-webhook` with your actual project directory
 - Use the full path to the virtual environment's Python: `.venv/bin/python3`
 - Ensure the virtual environment is created before starting the service
+- Create `.env` file from `.env.example` and configure your values
+- The `EnvironmentFile` directive will load variables from `.env` file automatically
 
 3. **Enable and start the service:**
 ```bash

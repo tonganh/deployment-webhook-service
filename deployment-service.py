@@ -8,6 +8,12 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 import json
 from datetime import datetime, timezone
 
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
 CONTENT_TYPE_JSON = 'application/json'
 
 logging.basicConfig(
